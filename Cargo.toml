@@ -1,6 +1,9 @@
 [package]
-name = "Rust"
+name = "rust"
 version = "0.1.0"
 authors = ["James Mussett <jamesmussett@gmail.com>"]
 
 [dependencies]
+portaudio = "0.7.0"
+num-derive = "0.2"
+num-traits = "0.2"
