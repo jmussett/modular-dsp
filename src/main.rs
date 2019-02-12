@@ -4,7 +4,6 @@ extern crate num_traits;
 extern crate portaudio;
 extern crate portmidi;
 extern crate crossbeam_channel;
-extern crate audio_thread_priority;
 
 mod sine;
 mod audio;
@@ -116,11 +115,6 @@ fn play_audio<Module: AudioModule>(
 
     let mut input_buffer = [0.0f32; SAMPLES_PER_BUFFER];
     let audio_module = &mut Module::new(SAMPLE_RATE);
-
-    audio_thread_priority::promote_current_thread_to_real_time(
-        SAMPLES_PER_BUFFER as u32,
-        SAMPLE_RATE as u32,
-    ).unwrap();
 
     loop {
         while let Ok(command) = command_receiver.try_recv() {
