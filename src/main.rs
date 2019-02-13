@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate num_derive;
-extern crate num_traits;
 extern crate portaudio;
 extern crate portmidi;
 extern crate crossbeam_channel;
@@ -8,16 +5,21 @@ extern crate crossbeam_channel;
 mod sine;
 mod audio;
 
-use audio::{AudioModule, Command};
-use sine::{SineModule, SineParameter};
+use audio::{AudioModule};
+use sine::{SineModule};
 use portaudio::{PortAudio};
-use portmidi::{PortMidi};
+use portmidi::{PortMidi, MidiEvent};
 use crossbeam_channel::Sender;
 
 const CHANNELS: usize = 2;
 const SAMPLE_RATE: f32 = 44_100.0;
 const FRAMES_PER_BUFFER: usize = 128;
 const SAMPLES_PER_BUFFER: usize = FRAMES_PER_BUFFER * CHANNELS;
+
+pub enum Command<'a> {
+    SendMidiEvents(Vec<MidiEvent>),
+    SendCommandInput(&'a str, f32)
+}
 
 fn main() {
     let (command_sender, command_receiver) = crossbeam_channel::bounded(1024);
@@ -56,24 +58,7 @@ fn process_midi(command_sender: Sender<Command>) -> Result<(), portmidi::Error> 
 
     while let Ok(_) = midi_port.poll() {
         if let Ok(Some(events)) = midi_port.read_n(1024) {
-           for event in events {
-                match event.message.status {
-                    // Note Off
-                    0x80 => {
-                        command_sender.send(Command::SetParameter(SineParameter::Frequency as usize, 0.0)).unwrap();
-                    },
-                    // Note On
-                    0x90 => {
-                        let note = event.message.data1 as f32;
-                        let frequency = 27.5 * 2f32.powf((note - 21.0)/12.0);
-
-                        println!("Note: {:#?}, Frequency: {:#?}", note, frequency);
-
-                        command_sender.send(Command::SetParameter(SineParameter::Frequency as usize, frequency)).unwrap();
-                    },
-                    _ => println!("Midi Status Not Supported: {:x?}", event.message.status)
-                }
-            }
+            command_sender.send(Command::SendMidiEvents(events)).unwrap();
         }
     }
 
@@ -88,7 +73,7 @@ fn process_inputs(command_sender: Sender<Command>) -> Result<(), std::io::Error>
         std::io::stdin().read_line(&mut input)?;
         match input.trim().parse::<f32>() {
             Ok(frequency) => {
-                command_sender.send(Command::SetParameter(SineParameter::Frequency as usize, frequency)).unwrap();
+                command_sender.send(Command::SendCommandInput("frequency", frequency)).unwrap();
             }
             Err(_) => eprintln!("{:?} was not a number", input.trim())
         }
@@ -113,12 +98,16 @@ fn play_audio<Module: AudioModule>(
     let mut stream = pa.open_blocking_stream(settings)?;
     stream.start()?;
 
-    let mut input_buffer = [0.0f32; SAMPLES_PER_BUFFER];
     let audio_module = &mut Module::new(SAMPLE_RATE);
 
     loop {
         while let Ok(command) = command_receiver.try_recv() {
-            audio_module.handle_command(command);
+            match command {
+                Command::SendMidiEvents(midi_events) 
+                    => audio_module.process_midi_input(midi_events),
+                Command::SendCommandInput(command, input)
+                    => audio_module.process_command_input(command, input)
+            }
         }
 
         match stream.read(FRAMES_PER_BUFFER as u32) {
@@ -126,13 +115,13 @@ fn play_audio<Module: AudioModule>(
             Err(err) => println!("Read from stream failed - {:?}", err),
             Ok(input) => {
                 assert_eq!(input.len(), SAMPLES_PER_BUFFER);
-                input_buffer.copy_from_slice(input);
+                audio_module.process_audio_input(input);
             }
         }
 
         match stream.write(FRAMES_PER_BUFFER as u32, |output| {
             assert_eq!(output.len(), SAMPLES_PER_BUFFER);
-            audio_module.process_stereo(&input_buffer[0..SAMPLES_PER_BUFFER], output);
+            audio_module.process_audio_output(output);
         }) {
             Err(portaudio::Error::OutputUnderflowed) => println!("Output underflowed"),
             Err(err) => println!("Write to stream failed - {:?}", err),

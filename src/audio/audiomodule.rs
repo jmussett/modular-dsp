@@ -1,9 +1,12 @@
-pub enum Command {
-    SetParameter(usize, f32)
-}
+use portmidi::{MidiEvent};
+
+pub type InputBuffer<'a> = &'a [f32];
+pub type OutputBuffer<'a> = &'a mut [f32];
 
 pub trait AudioModule {
-    fn new(f32) -> Self;
-    fn process_stereo(&mut self, input: &[f32], output: &mut [f32]);
-    fn handle_command(&mut self, command: Command);
+    fn new(sample_rate: f32) -> Self;
+    fn process_audio_input(&mut self, input: InputBuffer);
+    fn process_audio_output(&mut self, output: OutputBuffer);
+    fn process_midi_input(&mut self, midi_event: Vec<MidiEvent>);
+    fn process_command_input(&mut self, command: &str, input: f32);
 }

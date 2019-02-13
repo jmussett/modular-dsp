@@ -1,2 +1,2 @@
 mod sinemodule;
-pub use self::sinemodule::{SineModule, SineParameter};
+pub use self::sinemodule::{SineModule};

@@ -5,7 +5,5 @@ authors = ["James Mussett <jamesmussett@gmail.com>"]
 
 [dependencies]
 portaudio = "0.7.0"
-num-derive = "0.2"
-num-traits = "0.2"
 crossbeam-channel = "0.3"
 portmidi = "0.2.4"

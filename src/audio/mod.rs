@@ -1,2 +1,2 @@
 mod audiomodule;
-pub use self::audiomodule::{Command, AudioModule};
+pub use self::audiomodule::{AudioModule, InputBuffer, OutputBuffer};

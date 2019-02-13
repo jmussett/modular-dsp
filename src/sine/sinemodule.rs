@@ -1,13 +1,8 @@
-use audio::{AudioModule, Command};
+use portmidi::MidiEvent;
+use audio::{AudioModule, InputBuffer, OutputBuffer};
 use std::f64::consts::PI;
-use num_traits::FromPrimitive;
 
 const LOOKUP_SIZE: usize = 1000;
-
-#[derive(FromPrimitive)]
-pub enum SineParameter {
-    Frequency
-}
 
 pub struct SineModule {
     left_phase: usize,
@@ -33,9 +28,10 @@ impl AudioModule for SineModule {
             sample_rate: sample_rate
         }
     }
-    fn process_stereo(&mut self, input: &[f32], output: &mut [f32]) {
+    fn process_audio_input(&mut self, input: InputBuffer) {}
+    fn process_audio_output(&mut self, output: OutputBuffer) {
         if self.frequency == 0.0 {
-            for i in 0..input.len()
+            for i in 0..output.len()
             {
                 output[i] = 0.0;
             }
@@ -46,7 +42,7 @@ impl AudioModule for SineModule {
 
         let step = (LOOKUP_SIZE as f32 / (self.sample_rate / self.frequency)) as usize;
 
-        for i in (0..input.len()).into_iter().step_by(2) {
+        for i in (0..output.len()).into_iter().step_by(2) {
             output[i]   = self.lookup_table[self.left_phase];
             output[i+1] = self.lookup_table[self.right_phase];
             self.left_phase += step;
@@ -55,13 +51,26 @@ impl AudioModule for SineModule {
             if self.right_phase >= lookup_size { self.right_phase -= lookup_size }
         }
     }
-    fn handle_command(&mut self, command: Command) {
+    fn process_midi_input(&mut self, input: Vec<MidiEvent>) {
+        for event in input {
+            match event.message.status {
+                // Note Off
+                0x80 => {
+                    self.frequency = 0.0;
+                },
+                // Note On
+                0x90 => {
+                    let note = event.message.data1 as f32;
+                    self.frequency = 27.5 * 2f32.powf((note - 21.0)/12.0);
+                },
+                _ => println!("Midi Status Not Supported: {:x?}", event.message.status)
+            }
+        }
+    }
+    fn process_command_input(&mut self, command: &str, input: f32) {
         match command {
-            Command::SetParameter(id, frequency) => match SineParameter::from_usize(id).unwrap() {
-                SineParameter::Frequency => {
-                    self.frequency = frequency;
-                }
-            },
+            "frequency" => self.frequency = input,
+            _ => println!("Command Not Supported: {:x?}", input)
         }
     }
 }
