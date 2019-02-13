@@ -28,7 +28,7 @@ impl AudioModule for SineModule {
             sample_rate: sample_rate
         }
     }
-    fn process_audio_input(&mut self, input: InputBuffer) {}
+    fn process_audio_input(&mut self, _input: InputBuffer) {}
     fn process_audio_output(&mut self, output: OutputBuffer) {
         if self.frequency == 0.0 {
             for i in 0..output.len()
