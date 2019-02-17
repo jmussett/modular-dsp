@@ -1,4 +1,4 @@
-use portmidi::{MidiEvent};
+use midi::{MidiEvent};
 
 pub type InputBuffer<'a> = &'a [f32];
 pub type OutputBuffer<'a> = &'a mut [f32];

@@ -1,14 +1,16 @@
 extern crate portaudio;
-extern crate portmidi;
 extern crate crossbeam_channel;
 
-mod sine;
+mod midi;
 mod audio;
+mod sinemodule;
+mod portmidiprocessor;
 
 use audio::{AudioModule};
-use sine::{SineModule};
+use midi::{MidiProcessor, MidiEvent};
+use sinemodule::{SineModule};
 use portaudio::{PortAudio};
-use portmidi::{PortMidi, MidiEvent};
+use portmidiprocessor::{PortMidiProcessor};
 use crossbeam_channel::Sender;
 
 const CHANNELS: usize = 2;
@@ -34,37 +36,20 @@ fn main() {
     let midi_sender = command_sender.clone();
 
     std::thread::spawn(move || {
-        match process_midi(midi_sender) {
-            Ok(_) => {},
-            Err(e) => eprintln!("Midi Error: {:?}", e)
-        }
+        let midiprocessor = &mut PortMidiProcessor::new();
+
+        midiprocessor.process_midi(|events| {
+            match midi_sender.send(Command::SendMidiEvents(events)) {
+                Ok(_) => {},
+                Err(e) => eprintln!("Unable to send midi command: {:?}", e)
+            }
+        });
     });
 
     match process_inputs(command_sender) {
         Ok(_) => {},
         Err(e) => eprintln!("Input Error: {:?}", e)
     }
-}
-
-fn process_midi(command_sender: Sender<Command>) -> Result<(), portmidi::Error> {
-    let pm = PortMidi::new()?;
-
-    let default_device_id = pm.default_input_device_id()?;
-    let device = pm.device(default_device_id)?;
-
-    println!("Default Midi Input Device: {:#?}", device.name());
-
-    let midi_port = pm.input_port(device, 1024)?;
-
-    while let Ok(_) = midi_port.poll() {
-        if let Ok(Some(events)) = midi_port.read_n(1024) {
-            command_sender.send(Command::SendMidiEvents(events)).unwrap();
-        }
-    }
-
-    println!("Midi Input Device Disconnected");
-
-    Ok(())
 }
 
 fn process_inputs(command_sender: Sender<Command>) -> Result<(), std::io::Error> {

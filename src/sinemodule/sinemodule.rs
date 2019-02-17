@@ -1,8 +1,8 @@
-use portmidi::MidiEvent;
+use midi::MidiEvent;
 use audio::{AudioModule, InputBuffer, OutputBuffer};
 use std::f64::consts::PI;
 
-const LOOKUP_SIZE: usize = 1000;
+const LOOKUP_SIZE: usize = 10000;
 
 pub struct SineModule {
     left_phase: usize,
@@ -60,7 +60,7 @@ impl AudioModule for SineModule {
                 },
                 // Note On
                 0x90 => {
-                    let note = event.message.data1 as f32;
+                    let note = event.message.data as f32;
                     self.frequency = 27.5 * 2f32.powf((note - 21.0)/12.0);
                 },
                 _ => println!("Midi Status Not Supported: {:x?}", event.message.status)
