@@ -2,26 +2,47 @@ use midi::MidiEvent;
 use audio::{AudioModule, InputBuffer, OutputBuffer};
 use std::f64::consts::PI;
 
-const LOOKUP_SIZE: usize = 10000;
+pub struct WaveTable;
 
-pub struct SineModule {
+impl WaveTable {
+    pub fn create_sine_wave() -> Vec<f32> {
+        let wave_table = &mut vec![0.0; 10000];
+
+        for i in 0..10000 {
+            wave_table[i] = (i as f64 / 10000 as f64 * PI * 2.0).sin() as f32;
+        }
+
+        println!("{:?}", wave_table[7500]);
+
+        wave_table.to_vec()
+    }
+    pub fn create_square_wave() -> Vec<f32> {
+        let wave_table = &mut vec![0.0; 10000];
+
+        for i in 0..10000 {
+            if i < 5000 {
+                wave_table[i] = 1.0;
+            } else {
+                wave_table[i] = -1.0;
+            }
+        }
+
+        wave_table.to_vec()
+    }
+}
+
+pub struct WaveTableModule {
     left_phase: usize,
     right_phase: usize,
     frequency: f32,
-    lookup_table: Vec<f32>,
+    wave_table: Vec<f32>,
     sample_rate: f32
 }
 
-impl SineModule {
-    pub fn new(sample_rate: f32) -> Self {
-        let lookup_table = &mut vec![0.0; LOOKUP_SIZE];
-
-        for i in 0..LOOKUP_SIZE {
-            lookup_table[i] = (i as f64 / LOOKUP_SIZE as f64 * PI * 2.0).sin() as f32;
-        }
-
-        SineModule {
-            lookup_table: lookup_table.to_vec(),
+impl WaveTableModule {
+    pub fn new(wave_table: Vec<f32>, sample_rate: f32) -> Self {
+        WaveTableModule {
+            wave_table: wave_table.to_vec(),
             frequency: 0.0,
             left_phase: 0,
             right_phase: 0,
@@ -30,24 +51,16 @@ impl SineModule {
     }
 }
 
-impl AudioModule for SineModule {
+impl AudioModule for WaveTableModule {
     fn process_audio_input(&mut self, _input: InputBuffer) {}
     fn process_audio_output(&mut self, output: OutputBuffer) {
-        if self.frequency == 0.0 {
-            for i in 0..output.len()
-            {
-                output[i] = 0.0;
-            }
-            return
-        }
-        
-        let lookup_size = self.lookup_table.len();
+        let lookup_size = self.wave_table.len();
 
-        let step = (LOOKUP_SIZE as f32 / (self.sample_rate / self.frequency)) as usize;
+        let step = (lookup_size as f32 / (self.sample_rate / self.frequency)) as usize;
 
         for i in (0..output.len()).into_iter().step_by(2) {
-            output[i]   = self.lookup_table[self.left_phase];
-            output[i+1] = self.lookup_table[self.right_phase];
+            output[i]   = self.wave_table[self.left_phase];
+            output[i+1] = self.wave_table[self.right_phase];
             self.left_phase += step;
             if self.left_phase >= lookup_size { self.left_phase -= lookup_size; }
             self.right_phase += step;
@@ -73,6 +86,8 @@ impl AudioModule for SineModule {
     fn process_command_input(&mut self, command: &str, input: f32) {
         match command {
             "frequency" => self.frequency = input,
+            "square" => self.wave_table = WaveTable::create_square_wave(),
+            "sine" => self.wave_table = WaveTable::create_sine_wave(),
             _ => println!("Command Not Supported: {:x?}", input)
         }
     }

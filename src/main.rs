@@ -2,13 +2,13 @@ extern crate crossbeam_channel;
 
 mod midi;
 mod audio;
-mod sinemodule;
+mod wavetablemodule;
 mod portaudioprocessor;
 mod portmidiprocessor;
 
 use audio::{Command, AudioProcessor};
 use midi::{MidiProcessor};
-use sinemodule::{SineModule};
+use wavetablemodule::{WaveTable, WaveTableModule};
 use portaudioprocessor::{PortAudioProcessor};
 use portmidiprocessor::{PortMidiProcessor};
 use crossbeam_channel::Sender;
@@ -17,8 +17,9 @@ fn main() {
     let (command_sender, command_receiver) = crossbeam_channel::bounded(1024);
     
     std::thread::spawn(move || {
-        let sine_module = &mut SineModule::new(44_100.0);
-        let audio_processor = &mut PortAudioProcessor::new(sine_module, 2, 44_100.0, 128);
+        let sine_wave = WaveTable::create_sine_wave();
+        let wavetable_module = &mut WaveTableModule::new(sine_wave, 44_100.0);
+        let audio_processor = &mut PortAudioProcessor::new(wavetable_module, 2, 44_100.0, 128);
         
         audio_processor.process_audio(
             || match command_receiver.try_recv() {
@@ -57,11 +58,17 @@ fn process_inputs(command_sender: Sender<Command>) -> Result<(), std::io::Error>
     loop {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input)?;
-        match input.trim().parse::<f32>() {
-            Ok(frequency) => {
-                command_sender.send(Command::SendCommandInput("frequency", frequency)).unwrap();
+        if input.trim() == "sine" {
+            command_sender.send(Command::SendCommandInput("sine", 0.0)).unwrap()
+        } else if input.trim() == "square" {
+            command_sender.send(Command::SendCommandInput("square", 0.0)).unwrap()
+        } else {
+            match input.trim().parse::<f32>() {
+                Ok(frequency) => {
+                    command_sender.send(Command::SendCommandInput("frequency", frequency)).unwrap();
+                }
+                Err(_) => eprintln!("{:?} was not a number", input.trim())
             }
-            Err(_) => eprintln!("{:?} was not a number", input.trim())
         }
     }
 }
