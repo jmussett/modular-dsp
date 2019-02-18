@@ -8,6 +8,5 @@ pub struct MidiEvent {
 }
 
 pub trait MidiProcessor {
-    fn new() -> Self;
     fn process_midi<C: Fn(Vec<MidiEvent>)>(&mut self, callback: C);
 }

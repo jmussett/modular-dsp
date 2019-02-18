@@ -12,8 +12,8 @@ pub struct SineModule {
     sample_rate: f32
 }
 
-impl AudioModule for SineModule {
-    fn new(sample_rate: f32) -> SineModule {
+impl SineModule {
+    pub fn new(sample_rate: f32) -> Self {
         let lookup_table = &mut vec![0.0; LOOKUP_SIZE];
 
         for i in 0..LOOKUP_SIZE {
@@ -28,6 +28,9 @@ impl AudioModule for SineModule {
             sample_rate: sample_rate
         }
     }
+}
+
+impl AudioModule for SineModule {
     fn process_audio_input(&mut self, _input: InputBuffer) {}
     fn process_audio_output(&mut self, output: OutputBuffer) {
         if self.frequency == 0.0 {

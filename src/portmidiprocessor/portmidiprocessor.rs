@@ -5,10 +5,13 @@ use midi::{MidiProcessor, MidiEvent, MidiMessage};
 
 pub struct PortMidiProcessor;
 
-impl MidiProcessor for PortMidiProcessor {
-    fn new() -> PortMidiProcessor {
+impl PortMidiProcessor {
+    pub fn new() -> Self {
         PortMidiProcessor
     }
+}
+
+impl MidiProcessor for PortMidiProcessor {
     fn process_midi<C: Fn(Vec<MidiEvent>)>(&mut self, callback: C) {
         let run = || -> Result<(), portmidi::Error> {
             let pm = PortMidi::new()?;
@@ -38,7 +41,7 @@ impl MidiProcessor for PortMidiProcessor {
 
         match run() {
             Ok(_) => {},
-            Err(e) => eprintln!("Midi Error: {:?}", e)
+            Err(e) => eprintln!("PortMidi Error: {:?}", e)
         }
     }
 }
