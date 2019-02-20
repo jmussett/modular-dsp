@@ -1,5 +1,5 @@
-use midi::MidiEvent;
-use audio::{AudioModule, InputBuffer, OutputBuffer};
+use crate::midi::MidiEvent;
+use crate::audio::{AudioModule, InputBuffer, OutputBuffer};
 use std::f64::consts::PI;
 
 pub struct WaveTable;
