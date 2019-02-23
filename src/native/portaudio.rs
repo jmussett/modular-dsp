@@ -1,7 +1,7 @@
 extern crate portaudio;
 
 use portaudio::{PortAudio};
-use modulardsp::audio::{AudioModule, AudioProcessor, Command};
+use crate::audio::{AudioModule, AudioProcessor, Command};
 
 pub struct PortAudioProcessor<'a> {
     channels: usize,

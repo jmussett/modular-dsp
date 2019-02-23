@@ -1,7 +1,7 @@
 extern crate portmidi;
 
-use self::portmidi::{PortMidi};
-use modulardsp::midi::{MidiProcessor, MidiEvent, MidiMessage};
+use portmidi::{PortMidi};
+use crate::midi::{MidiProcessor, MidiEvent, MidiMessage};
 
 pub struct PortMidiProcessor;
 

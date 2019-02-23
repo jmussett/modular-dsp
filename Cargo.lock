@@ -37,15 +37,10 @@ version = "0.2.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "modulardsp"
-version = "0.1.0"
-
-[[package]]
-name = "modulardsp_native"
+name = "modulardsp-run"
 version = "0.1.0"
 dependencies = [
  "crossbeam-channel 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "modulardsp 0.1.0",
  "portaudio 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "portmidi 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

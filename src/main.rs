@@ -1,15 +1,11 @@
 extern crate crossbeam_channel;
-extern crate modulardsp;
 
-mod portaudio;
-mod portmidi;
-
+use crossbeam_channel::Sender;
 use modulardsp::audio::{Command, AudioProcessor};
 use modulardsp::midi::{MidiProcessor};
 use modulardsp::modules::wavetable::{WaveTable, WaveTableModule};
-use crossbeam_channel::Sender;
-use crate::portaudio::{PortAudioProcessor};
-use crate::portmidi::{PortMidiProcessor};
+use modulardsp::native::portaudio::{PortAudioProcessor};
+use modulardsp::native::portmidi::{PortMidiProcessor};
 
 fn main() {
     let (command_sender, command_receiver) = crossbeam_channel::bounded(1024);
