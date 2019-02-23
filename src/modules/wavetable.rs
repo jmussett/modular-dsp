@@ -11,9 +11,7 @@ impl WaveTable {
         for i in 0..10000 {
             wave_table[i] = (i as f64 / 10000 as f64 * PI * 2.0).sin() as f32;
         }
-
-        println!("{:?}", wave_table[7500]);
-
+        
         wave_table.to_vec()
     }
     pub fn create_square_wave() -> Vec<f32> {

@@ -6,6 +6,5 @@ edition = "2018"
 
 [workspace]
 members = [
-    "native",
-    "web"
+    "native"
 ]
