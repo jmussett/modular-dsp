@@ -1,20 +1,33 @@
 use crate::midi::MidiEvent;
 
-pub enum Command<'a> {
+pub struct InputParameter {
+    pub key: &'static str,
+    pub value: f32
+}
+
+pub enum Command {
     SendMidiEvents(Vec<MidiEvent>),
-    SendCommandInput(&'a str, f32)
+    SendInputParameter(&'static str, f32)
 }
 
 pub type InputBuffer<'a> = &'a [f32];
 pub type OutputBuffer<'a> = &'a mut [f32];
 
-pub trait AudioModule {
-    fn process_audio_input(&mut self, input: InputBuffer);
-    fn process_audio_output(&mut self, output: OutputBuffer);
-    fn process_midi_input(&mut self, midi_event: Vec<MidiEvent>);
-    fn process_command_input(&mut self, command: &str, input: f32);
+pub struct Events<'a> {
+    pub input_parameters: &'a Vec<InputParameter>,
+    pub midi_events: &'a Vec<MidiEvent>
 }
 
-pub trait AudioProcessor<'a> {
-    fn process_audio<RC: Fn() -> Option<Command<'a>>>(&mut self, receive_commands: RC);
+pub struct AudioData<'a> {
+    pub input: InputBuffer<'a>,
+    pub output: OutputBuffer<'a>,
+    pub events: Events<'a>
+}
+
+pub trait AudioModule {
+    fn process_audio(&mut self, data: AudioData);
+}
+
+pub trait AudioProcessor {
+    fn process_audio<RC: Fn() -> Option<Command>>(&mut self, receive_commands: RC);
 }

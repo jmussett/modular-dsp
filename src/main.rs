@@ -25,7 +25,7 @@ fn main() {
                         None
                     }
                 }
-            },
+            }
         );
     });
 
@@ -53,13 +53,13 @@ fn process_inputs(command_sender: Sender<Command>) -> Result<(), std::io::Error>
         let mut input = String::new();
         std::io::stdin().read_line(&mut input)?;
         if input.trim() == "sine" {
-            command_sender.send(Command::SendCommandInput("sine", 0.0)).unwrap()
+            command_sender.send(Command::SendInputParameter("sine", 0.0)).unwrap()
         } else if input.trim() == "square" {
-            command_sender.send(Command::SendCommandInput("square", 0.0)).unwrap()
+            command_sender.send(Command::SendInputParameter("square", 0.0)).unwrap()
         } else {
             match input.trim().parse::<f32>() {
                 Ok(frequency) => {
-                    command_sender.send(Command::SendCommandInput("frequency", frequency)).unwrap();
+                    command_sender.send(Command::SendInputParameter("frequency", frequency)).unwrap();
                 }
                 Err(_) => eprintln!("{:?} was not a number", input.trim())
             }

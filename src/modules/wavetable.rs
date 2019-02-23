@@ -1,5 +1,4 @@
-use crate::midi::MidiEvent;
-use crate::audio::{AudioModule, InputBuffer, OutputBuffer};
+use crate::audio::{AudioData, AudioModule};
 use std::f64::consts::PI;
 
 pub struct WaveTable;
@@ -50,23 +49,8 @@ impl WaveTableModule {
 }
 
 impl AudioModule for WaveTableModule {
-    fn process_audio_input(&mut self, _input: InputBuffer) {}
-    fn process_audio_output(&mut self, output: OutputBuffer) {
-        let lookup_size = self.wave_table.len();
-
-        let step = (lookup_size as f32 / (self.sample_rate / self.frequency)) as usize;
-
-        for i in (0..output.len()).into_iter().step_by(2) {
-            output[i]   = self.wave_table[self.left_phase];
-            output[i+1] = self.wave_table[self.right_phase];
-            self.left_phase += step;
-            if self.left_phase >= lookup_size { self.left_phase -= lookup_size; }
-            self.right_phase += step;
-            if self.right_phase >= lookup_size { self.right_phase -= lookup_size }
-        }
-    }
-    fn process_midi_input(&mut self, input: Vec<MidiEvent>) {
-        for event in input {
+    fn process_audio(&mut self, data: AudioData) {
+        for event in data.events.midi_events {
             match event.message.status {
                 // Note Off
                 0x80 => {
@@ -80,13 +64,27 @@ impl AudioModule for WaveTableModule {
                 _ => println!("Midi Status Not Supported: {:x?}", event.message.status)
             }
         }
-    }
-    fn process_command_input(&mut self, command: &str, input: f32) {
-        match command {
-            "frequency" => self.frequency = input,
-            "square" => self.wave_table = WaveTable::create_square_wave(),
-            "sine" => self.wave_table = WaveTable::create_sine_wave(),
-            _ => println!("Command Not Supported: {:x?}", input)
+
+        for input_parameter in data.events.input_parameters {
+            match input_parameter.key {
+                "frequency" => self.frequency = input_parameter.value,
+                "square" => self.wave_table = WaveTable::create_square_wave(),
+                "sine" => self.wave_table = WaveTable::create_sine_wave(),
+                _ => println!("Command Not Supported: {:x?}", input_parameter.key)
+            }
+        }
+
+        let lookup_size = self.wave_table.len();
+
+        let step = (lookup_size as f32 / (self.sample_rate / self.frequency)) as usize;
+
+        for i in (0..data.output.len()).into_iter().step_by(2) {
+            data.output[i]   = self.wave_table[self.left_phase];
+            data.output[i+1] = self.wave_table[self.right_phase];
+            self.left_phase += step;
+            if self.left_phase >= lookup_size { self.left_phase -= lookup_size; }
+            self.right_phase += step;
+            if self.right_phase >= lookup_size { self.right_phase -= lookup_size }
         }
     }
 }

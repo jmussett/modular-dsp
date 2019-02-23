@@ -37,7 +37,7 @@ version = "0.2.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "modulardsp-run"
+name = "modulardsp-test"
 version = "0.1.0"
 dependencies = [
  "crossbeam-channel 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
