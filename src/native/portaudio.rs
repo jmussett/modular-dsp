@@ -46,6 +46,11 @@ impl<'a> AudioProcessor for PortAudioProcessor<'a> {
                 input.push(0.0f32);
             }
 
+            match audio_thread_priority::promote_current_thread_to_real_time(512, 44100) {
+                Ok(_) => {}
+                Err(()) => println!("Could not run the audio in real time")
+            }
+
             loop {
                 let mut midi_events = Vec::new();
                 let mut input_parameters = Vec::new();
