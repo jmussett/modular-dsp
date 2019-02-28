@@ -1,4 +1,7 @@
-/target
+target
+native/target
+native/index.node
+native/artifacts.json
 **/*.rs.bk
 node_modules
 dist

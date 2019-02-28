@@ -5,7 +5,6 @@ const commonConfig = {
     devtool: 'inline-source-map',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        //publicPath: './',
         filename: '[name].js'
     },
     resolve: {
@@ -25,6 +24,10 @@ const commonConfig = {
           {
             test: /\.tsx?$/,
             loader: 'ts-loader'
+          },
+          {
+            test: /\.node$/,
+            use: 'node-loader'
           }
         ]
     },
@@ -41,7 +44,7 @@ var main = {
 
 var renderer = {
     target: 'electron-renderer',
-    entry: { renderer: './src/renderer.tsx' },
+    entry: { renderer: './src/app/index.tsx' },
     plugins: [ new HtmlWebpackPlugin({title: "Electron App"}) ],
     ...commonConfig
 };

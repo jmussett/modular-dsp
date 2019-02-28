@@ -1,6 +1,3 @@
-extern crate portmidi;
-
-use portmidi::{PortMidi};
 use crate::midi::{MidiProcessor, MidiEvent, MidiMessage};
 
 pub struct PortMidiProcessor;
@@ -14,7 +11,7 @@ impl PortMidiProcessor {
 impl MidiProcessor for PortMidiProcessor {
     fn process_midi<C: Fn(Vec<MidiEvent>)>(&mut self, callback: C) {
         let run = || -> Result<(), portmidi::Error> {
-            let pm = PortMidi::new()?;
+            let pm = portmidi::PortMidi::new()?;
 
             let default_device_id = pm.default_input_device_id()?;
             let device = pm.device(default_device_id)?;

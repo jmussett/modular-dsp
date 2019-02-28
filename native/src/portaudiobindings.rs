@@ -1,6 +1,3 @@
-extern crate portaudio;
-
-use portaudio::{PortAudio};
 use crate::audio::{InputParameter, Events, AudioData, AudioModule, AudioProcessor, Command};
 
 pub struct PortAudioProcessor<'a> {
@@ -26,7 +23,7 @@ impl<'a> PortAudioProcessor<'a> {
 impl<'a> AudioProcessor for PortAudioProcessor<'a> {
     fn process_audio<RC: Fn() -> Option<Command>>(&mut self, receive_command: RC) {
         let run = &mut || -> Result<(), portaudio::Error> {
-            let pa = PortAudio::new()?;
+            let pa = portaudio::PortAudio::new()?;
 
             log_host(&pa)?;
             log_devices(&pa)?;
@@ -107,7 +104,7 @@ impl<'a> AudioProcessor for PortAudioProcessor<'a> {
     }
 }
 
-fn log_host(pa: &PortAudio) -> Result<(), portaudio::Error>  {
+fn log_host(pa: &portaudio::PortAudio) -> Result<(), portaudio::Error>  {
     let host_index = pa.default_host_api()?;
     let default_host = pa.host_apis().find(|host| host.0 == host_index)
         .expect("Default Host does not exist").1;
@@ -117,7 +114,7 @@ fn log_host(pa: &PortAudio) -> Result<(), portaudio::Error>  {
     Ok(())
 }
 
-fn log_devices(pa: &PortAudio) -> Result<(), portaudio::Error> {
+fn log_devices(pa: &portaudio::PortAudio) -> Result<(), portaudio::Error> {
     let input_device_index = pa.default_input_device()?;
     let output_device_index = pa.default_output_device()?;
 
