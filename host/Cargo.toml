@@ -1,21 +1,15 @@
 [package]
-name = "modular-dsp"
+name = "modulardsp"
 version = "0.1.0"
 authors = ["James Mussett <jamesmussett@gmail.com>"]
 license = "MIT"
-build = "build.rs"
-exclude = ["artifacts.json", "index.node"]
-
-[lib]
-name = "modular_dsp"
-crate-type = ["dylib"]
-
-[build-dependencies]
-neon-build = "0.2.0"
 
 [dependencies]
-neon = "0.2.0"
 portaudio = "0.7.0"
 crossbeam-channel = "0.3"
 portmidi = "0.2.4"
+ws = "0.8.0"
 audio_thread_priority = "0.3"
+uuid = { version = "0.7", features = ["v4"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

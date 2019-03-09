@@ -1,23 +1,25 @@
-use crate::audio::{AudioData, AudioModule};
+use crate::core::audio::{AudioData, AudioModule};
 use std::f64::consts::PI;
+
+const TABLE_SIZE: usize = 100000;
 
 pub struct WaveTable;
 
 impl WaveTable {
     pub fn create_sine_wave() -> Vec<f32> {
-        let wave_table = &mut vec![0.0; 10000];
+        let wave_table = &mut vec![0.0; TABLE_SIZE];
 
-        for i in 0..10000 {
-            wave_table[i] = (i as f64 / 10000 as f64 * PI * 2.0).sin() as f32;
+        for i in 0..TABLE_SIZE {
+            wave_table[i] = (i as f64 / TABLE_SIZE as f64 * PI * 2.0).sin() as f32;
         }
         
         wave_table.to_vec()
     }
     pub fn create_square_wave() -> Vec<f32> {
-        let wave_table = &mut vec![0.0; 10000];
+        let wave_table = &mut vec![0.0; TABLE_SIZE];
 
-        for i in 0..10000 {
-            if i < 5000 {
+        for i in 0..TABLE_SIZE {
+            if i < TABLE_SIZE / 2 {
                 wave_table[i] = 1.0;
             } else {
                 wave_table[i] = -1.0;
@@ -66,11 +68,11 @@ impl AudioModule for WaveTableModule {
         }
 
         for input_parameter in data.events.input_parameters {
-            match input_parameter.key {
-                "frequency" => self.frequency = input_parameter.value,
+            match input_parameter.0.as_ref() {
+                "frequency" => self.frequency = *input_parameter.1,
                 "square" => self.wave_table = WaveTable::create_square_wave(),
                 "sine" => self.wave_table = WaveTable::create_sine_wave(),
-                _ => println!("Command Not Supported: {:x?}", input_parameter.key)
+                _ => println!("Command Not Supported: {:x?}", input_parameter.0)
             }
         }
 

@@ -1,8 +1,12 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct MidiMessage {
     pub status: u8,
     pub data: u8
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct MidiEvent {
     pub message: MidiMessage
 }

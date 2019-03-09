@@ -2,5 +2,5 @@
 
 [workspace]
 members = [
-    "native",
+    "host",
 ]

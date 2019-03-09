@@ -1,4 +1,4 @@
-use crate::midi::{MidiProcessor, MidiEvent, MidiMessage};
+use crate::core::midi::{MidiProcessor, MidiEvent, MidiMessage};
 
 pub struct PortMidiProcessor;
 

@@ -1,4 +1,5 @@
-use crate::audio::{InputParameter, Events, AudioData, AudioModule, AudioProcessor, Command};
+use std::collections::{HashMap};
+use crate::core::audio::{Events, AudioData, AudioModule, AudioProcessor, CommandSet, Command};
 
 pub struct PortAudioProcessor<'a> {
     channels: usize,
@@ -21,7 +22,7 @@ impl<'a> PortAudioProcessor<'a> {
 }
 
 impl<'a> AudioProcessor for PortAudioProcessor<'a> {
-    fn process_audio<RC: Fn() -> Option<Command>>(&mut self, receive_command: RC) {
+    fn process_audio<RC: Fn() -> Option<CommandSet>>(&mut self, receive_commands: RC) {
         let run = &mut || -> Result<(), portaudio::Error> {
             let pa = portaudio::PortAudio::new()?;
 
@@ -50,19 +51,17 @@ impl<'a> AudioProcessor for PortAudioProcessor<'a> {
 
             loop {
                 let mut midi_events = Vec::new();
-                let mut input_parameters = Vec::new();
+                let mut input_parameters = HashMap::new();
 
-                while let Some(command) = receive_command() {
-                    match command {
-                        Command::SendMidiEvents(events) 
-                            => midi_events = events,
-                        Command::SendInputParameter(key, value) => {
-                            let input_parameter = InputParameter {
-                                key: key,
-                                value: value
-                            };
-
-                            input_parameters.push(input_parameter);
+                if let Some(command_set) = receive_commands() {
+                    for command  in command_set.commands {
+                        match command {
+                            Command::MidiEvent(event) => {
+                                midi_events.push(event);
+                            },
+                            Command::InputParameter(key, value) => {
+                                input_parameters.insert(key, value);
+                            }
                         }
                     }
                 }

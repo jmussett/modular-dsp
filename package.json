@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "electron dist/main.js",
-    "build": "electron-build-env neon build && webpack-cli --mode development",
+    "build": "webpack-cli --mode development",
     "clean": "rimraf dist native/target native/artifacts.json native/index.node"
   },
   "dependencies": {

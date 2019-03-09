@@ -1,8 +1,6 @@
 declare var __dirname: string
 
-import * as nativeDsp from '../native/index.node'
-
-import { app, BrowserWindow, ipcMain as ipc } from 'electron'
+import { app, BrowserWindow } from 'electron'
 
 let mainWindow: Electron.BrowserWindow
 
@@ -20,10 +18,6 @@ function initialize () {
 
     app.on('ready', onReady)
     app.on('window-all-closed', app.quit)
-
-    ipc.on('play', () => {
-        console.log(nativeDsp.play())
-    })
 
     console.log(`Electron Version ${app.getVersion()}`)
 }

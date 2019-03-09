@@ -24,16 +24,9 @@ const commonConfig = {
           {
             test: /\.tsx?$/,
             loader: 'ts-loader'
-          },
-          {
-            test: /\.node$/,
-            use: 'node-loader'
           }
         ]
-    },
-    node: {
-        __dirname: false
-    },
+    }
 };
 
 var main = {

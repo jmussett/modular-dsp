@@ -1,4 +1,0 @@
-# Required for running neon build
-
-[build]
-target-dir = "native/target"
