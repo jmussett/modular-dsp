@@ -1,7 +1,7 @@
 {
   "name": "modular-dsp",
   "version": "1.0.0",
-  "main": "src/main.js",
+  "main": "src/main/main.js",
   "author": "James Mussett <jamesmussett@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -11,7 +11,7 @@
   "scripts": {
     "start": "electron dist/main.js",
     "build": "webpack-cli --mode development",
-    "clean": "rimraf dist native/target native/artifacts.json native/index.node"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@types/react": "^16.8.5",
@@ -21,10 +21,7 @@
     "react-dom": "^16.8.3"
   },
   "devDependencies": {
-    "electron-build-env": "^0.2.0",
     "html-webpack-plugin": "^3.2.0",
-    "neon-cli": "^0.2.0",
-    "node-loader": "^0.6.0",
     "rimraf": "^2.6.3",
     "ts-loader": "^5.3.3",
     "tslint": "^5.13.0",

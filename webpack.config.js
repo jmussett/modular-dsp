@@ -10,6 +10,9 @@ const commonConfig = {
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx']
     },
+    node: {
+      __dirname: false
+    },
     module: {
       rules: [
           {
@@ -31,13 +34,13 @@ const commonConfig = {
 
 var main = {
     target: 'electron-main',
-    entry: { main: './src/main.ts' },
+    entry: { main: './src/main/main.ts' },
     ...commonConfig
 };
 
 var renderer = {
     target: 'electron-renderer',
-    entry: { renderer: './src/app/index.tsx' },
+    entry: { renderer: './src/renderer/index.tsx' },
     plugins: [ new HtmlWebpackPlugin({title: "Electron App"}) ],
     ...commonConfig
 };
