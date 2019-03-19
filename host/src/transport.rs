@@ -19,7 +19,7 @@ impl ws::Handler for Connection {
         if msg.is_text() {
             let text = msg.into_text().unwrap();
             println!("New Message {:?}, Id: {:?}", text, self.id);
-
+            
             match serde_json::from_str(&text) {
                 Ok(a) => self.channel_sender.send(a).unwrap(),
                 Err(err) => eprintln!("Unable to deserialize message: {:?}", err)

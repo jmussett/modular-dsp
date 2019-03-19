@@ -1,20 +1,37 @@
+import { ipcRenderer as ipc } from 'electron'
 import * as React from 'react'
 import { render } from 'react-dom'
-import { ipcRenderer as ipc } from 'electron'
 
-let frequency = 0
+let socket = new WebSocket('ws://localhost:3012')
 
-let play = () => ipc.send('play')
-let changeFrequency = () => ipc.send('changeFrequency', frequency)
+interface IState {
+    frequency: number
+}
+
+class WaveTable extends React.Component<{}, IState> {
+    constructor(props: {}) {
+        super(props)
+        this.state = { frequency: 0 }
+    }
+    changeFrequency(e: React.ChangeEvent<HTMLInputElement>) {
+        socket.send(JSON.stringify({
+            commands: [{
+                type: 'InputParameter',
+                data: ['frequency', parseInt(e.target.value, 0)]
+            }]
+        }))
+    }
+    render() {
+        return <div>
+          <h1>Hello World!</h1>
+          <span>
+            <input type='number' min={0} step={10} defaultValue='0' onChange={this.changeFrequency}/>
+          </span>
+        </div>
+    }
+}
 
 render(
-  <div>
-    <h1>Hello World!</h1>
-    <button onClick={() => play()}>Play</button>
-    <span>
-      <input ref={x => { frequency = Number(x) }}/>
-      <button onClick={() => changeFrequency()}>Change Frequency</button>
-    </span>
-  </div>,
-  document.getElementsByTagName('body')[0]
+    <WaveTable/>,
+    document.getElementsByTagName('body')[0]
 )

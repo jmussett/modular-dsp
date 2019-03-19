@@ -11,7 +11,7 @@
         "noImplicitThis": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
-        "removeComments": true,
+        "removeComments": true
     },
     "include": [
         "./src"

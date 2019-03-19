@@ -54,7 +54,7 @@ impl<'a> AudioProcessor for PortAudioProcessor<'a> {
                 let mut input_parameters = HashMap::new();
 
                 if let Some(command_set) = receive_commands() {
-                    for command  in command_set.commands {
+                    for command in command_set.commands {
                         match command {
                             Command::MidiEvent(event) => {
                                 midi_events.push(event);
