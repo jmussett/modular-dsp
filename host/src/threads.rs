@@ -12,7 +12,7 @@ pub struct MidiThread;
 impl AudioThread {
     pub fn init(channel_receiver: crossbeam_channel::Receiver<CommandSet>) -> AudioThread {
         std::thread::spawn(move || {
-            let sine_wave = WaveTable::create_sine_wave();
+            let sine_wave = WaveTable::create_sine_wave(1.0, 1.0, 0.0);
             let wavetable_module = &mut WaveTableModule::new(sine_wave, 44_100.0);
             let audio_processor = &mut PortAudioProcessor::new(wavetable_module, 2, 44_100.0, 128);
             

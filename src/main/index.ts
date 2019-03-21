@@ -18,8 +18,7 @@ function initialize () {
 
         if (isDevelopment) {
             mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-        }
-        else {
+        } else {
             mainWindow.loadURL(formatUrl({
                 pathname: path.join(__dirname, 'index.html'),
                 protocol: 'file',

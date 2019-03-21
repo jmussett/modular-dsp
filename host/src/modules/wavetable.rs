@@ -1,32 +1,54 @@
 use crate::core::audio::{AudioData, AudioModule};
 use std::f64::consts::PI;
+use cgmath::prelude::*;
+use cgmath::Rad;
 
 const TABLE_SIZE: usize = 100000;
 
 pub struct WaveTable;
 
 impl WaveTable {
-    pub fn create_sine_wave() -> Vec<f32> {
+    pub fn create_wave_form<C: Fn(f64) -> f64>(calculate: C) -> Vec<f32>  {
         let wave_table = &mut vec![0.0; TABLE_SIZE];
 
         for i in 0..TABLE_SIZE {
-            wave_table[i] = (i as f64 / TABLE_SIZE as f64 * PI * 2.0).sin() as f32;
+            let x = i as f64 / TABLE_SIZE as f64;
+            wave_table[i] = calculate(x) as f32;
         }
-        
+
         wave_table.to_vec()
     }
-    pub fn create_square_wave() -> Vec<f32> {
-        let wave_table = &mut vec![0.0; TABLE_SIZE];
+    pub fn create_sine_wave(amplitude: f64, cycles: f64, phase: f64) -> Vec<f32> {
+        WaveTable::create_wave_form(|x: f64| {
+            // sine - A * sin(2PIcx + p)
 
-        for i in 0..TABLE_SIZE {
-            if i < TABLE_SIZE / 2 {
-                wave_table[i] = 1.0;
-            } else {
-                wave_table[i] = -1.0;
-            }
-        }
+            let angle = Rad(2.0 * PI * cycles * x + phase);
+            amplitude * Rad::sin(angle)
+        })
+    }
+    pub fn create_square_wave(amplitude: f64, cycles: f64, phase: f64) -> Vec<f32> {
+        WaveTable::create_wave_form(|x: f64| {
+            // square - A * sign(sin(2PIcx + p))
 
-        wave_table.to_vec()
+            let angle = Rad(2.0 * PI * cycles * x + phase);
+            amplitude * Rad::sin(angle).signum()
+        })
+    }
+    pub fn create_sawtooth_wave(amplitude: f64, cycles: f64, phase: f64) -> Vec<f32> {
+        WaveTable::create_wave_form(|x: f64| {
+            // sawtooth - -2A/PI * arctan(cot(PIcx + p/2))
+
+            let angle = Rad(PI * cycles * x + phase/2.0);
+            -2.0 * amplitude / PI * Rad::cot(angle).atan()
+        })
+    }
+    pub fn create_triangle_wave(amplitude: f64, cycles: f64, phase: f64) -> Vec<f32> {
+        WaveTable::create_wave_form(|x: f64| {
+            // triangle - 2A/PI * arcsin(sin(2PIcx + p))
+
+            let angle = Rad(2.0 * PI * cycles * x + phase);
+            2.0 * amplitude / PI * Rad::sin(angle).asin()
+        })
     }
 }
 
@@ -70,8 +92,10 @@ impl AudioModule for WaveTableModule {
         for input_parameter in data.events.input_parameters {
             match input_parameter.0.as_ref() {
                 "frequency" => self.frequency = *input_parameter.1,
-                "square" => self.wave_table = WaveTable::create_square_wave(),
-                "sine" => self.wave_table = WaveTable::create_sine_wave(),
+                "square" => self.wave_table = WaveTable::create_square_wave(1.0, 1.0, 0.0),
+                "sine" => self.wave_table = WaveTable::create_sine_wave(1.0, 1.0, 0.0),
+                "sawtooth" => self.wave_table = WaveTable::create_sawtooth_wave(1.0, 1.0, 0.0),
+                "triangle" => self.wave_table = WaveTable::create_triangle_wave(1.0, 1.0, 0.0),
                 _ => println!("Command Not Supported: {:x?}", input_parameter.0)
             }
         }

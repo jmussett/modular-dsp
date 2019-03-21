@@ -11,6 +11,8 @@ impl CliProcessor {
             match input.trim() {
                 "sine" => command_sender.send(CommandSet::from_input("sine".to_owned(), 0.0)).unwrap(),
                 "square" => command_sender.send(CommandSet::from_input("square".to_owned(), 0.0)).unwrap(),
+                "sawtooth" => command_sender.send(CommandSet::from_input("sawtooth".to_owned(), 0.0)).unwrap(),
+                "triangle" => command_sender.send(CommandSet::from_input("triangle".to_owned(), 0.0)).unwrap(),
                 number => match number.parse::<f32>() {
                     Ok(frequency) => {
                         command_sender.send(CommandSet::from_input("frequency".to_owned(), frequency)).unwrap();

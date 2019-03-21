@@ -5,6 +5,7 @@ extern crate ws;
 extern crate uuid;
 extern crate serde;
 extern crate serde_json;
+extern crate cgmath;
 
 pub mod core;
 pub mod modules;
