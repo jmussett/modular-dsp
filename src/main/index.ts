@@ -1,8 +1,10 @@
-declare var __dirname: string
-
 import { app, BrowserWindow } from 'electron'
+import * as path from 'path'
+import { format as formatUrl } from 'url'
 
 let mainWindow: Electron.BrowserWindow | null
+
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
 function initialize () {
     function createWindow() {
@@ -14,7 +16,16 @@ function initialize () {
             }
         })
 
-        mainWindow.loadURL(`file://${__dirname}/index.html`)
+        if (isDevelopment) {
+            mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
+        }
+        else {
+            mainWindow.loadURL(formatUrl({
+                pathname: path.join(__dirname, 'index.html'),
+                protocol: 'file',
+                slashes: true
+            }))
+        }
 
         mainWindow.webContents.openDevTools()
 
